@@ -30,6 +30,11 @@
       <artifactId>javafx-controls</artifactId>
       <version>${javafx.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.6.1</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -39,7 +44,7 @@
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.0.8</version>
         <configuration>
-          <mainClass>jakepalanca.bubblechart.BubbleChartApp</mainClass> <!-- Adjust the mainClass path as needed -->
+          <mainClass>jakepalanca.bubblechart.ChartApp</mainClass> <!-- Adjust the mainClass path as needed -->
         </configuration>
       </plugin>
     </plugins>
