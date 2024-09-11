@@ -31,15 +31,36 @@ public class Chart {
 
     // Dynamically recalculate bubble sizes based on their radius ratios
     public void recalculateBubbleRadii() {
-        double totalRatio = bubbles.stream().mapToDouble(Bubble::getRadiusRatio).sum();
         double totalArea = width * height;
+        double totalRatio = bubbles.stream().mapToDouble(Bubble::getRadiusRatio).sum();
 
+        // Shrink or grow the bubbles proportionally based on their radius ratios
         for (Bubble bubble : bubbles) {
             double bubbleArea = (bubble.getRadiusRatio() / totalRatio) * totalArea;
             double newRadius = Math.sqrt(bubbleArea / Math.PI);
             bubble.setRadius(newRadius);
+
+            // Adjust positions to ensure bubbles stay within the borders after resizing
+            adjustBubblePosition(bubble);
         }
+
+        // Now run the packing optimization to ensure no overlaps and best placement
+        optimizePacking(bubbles);
     }
+
+
+
+    // Ensure bubble's position is within the borders based on its radius
+    private void adjustBubblePosition(Bubble bubble) {
+        double radius = bubble.getRadius();
+
+        // Adjust the x and y positions to keep the bubble inside the rectangle
+        double newX = Math.max(radius, Math.min(width - radius, bubble.getX()));
+        double newY = Math.max(radius, Math.min(height - radius, bubble.getY()));
+
+        bubble.setPosition(newX, newY);
+    }
+
 
     // Solve the knapsack problem and optimize packing
     public void solveKnapsackProblem() {
@@ -50,9 +71,14 @@ public class Chart {
 
     // Optimize packing for the selected bubbles
     public void optimizePacking(List<Bubble> selectedBubbles) {
-        CirclePackingOptimization optimizer = new CirclePackingOptimization(this, selectedBubbles);
-        optimizer.optimize();  // Call the optimization logic for packing
+        try {
+            CirclePackingOptimization optimizer = new CirclePackingOptimization(this, selectedBubbles);
+            optimizer.optimize();  // Run the optimizer to handle packing and size optimization
+        } catch (Exception e) {
+            System.err.println("Error during optimization: " + e.getMessage());
+        }
     }
+
 
     // Getter methods for chart dimensions
     public double getWidth() {

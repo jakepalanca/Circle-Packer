@@ -67,7 +67,6 @@ public class CirclePackingOptimization {
             logger.severe("Optimization failed: " + e.getMessage());
         }
     }
-
     private double calculateObjectiveFunction(double[] point) {
         double penalty = 0.0;
 
@@ -75,19 +74,24 @@ public class CirclePackingOptimization {
         double width = chart.getWidth();
         double height = chart.getHeight();
 
-        // Loop through each pair of bubbles
+        double totalBubbleArea = 0;
+
+        // Loop through each bubble to check for boundary violations and overlaps
         for (int i = 0; i < bubbles.size(); i++) {
             Bubble bubbleI = bubbles.get(i);
             double x_i = point[2 * i];
             double y_i = point[2 * i + 1];
             double radius_i = bubbleI.getRadius();
 
-            // Check if bubbleI violates boundary constraints
+            // Calculate total area of the bubble
+            totalBubbleArea += Math.PI * radius_i * radius_i;
+
+            // Penalize boundary violations (much larger penalty for exceeding borders)
             if (x_i - radius_i < 0 || x_i + radius_i > width || y_i - radius_i < 0 || y_i + radius_i > height) {
-                penalty += 1000;  // Apply a large penalty for boundary violation
+                penalty += 5000;  // Large penalty for boundary violation
             }
 
-            // Now compare with all other bubbles to check for overlap
+            // Check for overlaps with other bubbles
             for (int j = i + 1; j < bubbles.size(); j++) {
                 Bubble bubbleJ = bubbles.get(j);
                 double x_j = point[2 * j];
@@ -98,12 +102,16 @@ public class CirclePackingOptimization {
                 double distSquared = Math.pow(x_i - x_j, 2) + Math.pow(y_i - y_j, 2);
                 double minDistSquared = Math.pow(radius_i + radius_j, 2);
 
-                // Check if the bubbles overlap (distSquared should be greater than or equal to minDistSquared)
+                // Check if the bubbles overlap
                 if (distSquared < minDistSquared) {
                     penalty += Math.pow(minDistSquared - distSquared, 2);  // Penalty increases as overlap increases
                 }
             }
         }
+
+        // Light penalty for unused space to encourage maximizing bubble sizes
+        double totalArea = width * height;
+        penalty += 0.01 * (totalArea - totalBubbleArea);
 
         return penalty;
     }
@@ -112,19 +120,29 @@ public class CirclePackingOptimization {
     private double[] initializeGreedy() {
         double[] startPoint = new double[bubbles.size() * 2];
 
-        // Distribute the bubbles in a grid-like pattern as initial guess to avoid overlap
-        int cols = (int) Math.ceil(Math.sqrt(bubbles.size()));  // Number of columns in grid
-        double xIncrement = chart.getWidth() / (cols + 1);
-        double yIncrement = chart.getHeight() / (cols + 1);
+        // Number of columns in grid-like pattern
+        int cols = (int) Math.ceil(Math.sqrt(bubbles.size()));
+        double xIncrement = (chart.getWidth() - getMaxBubbleRadius() * 2) / (cols + 1);
+        double yIncrement = (chart.getHeight() - getMaxBubbleRadius() * 2) / (cols + 1);
 
         for (int i = 0; i < bubbles.size(); i++) {
             int row = i / cols;
             int col = i % cols;
 
-            startPoint[2 * i] = xIncrement * (col + 1);  // x position
-            startPoint[2 * i + 1] = yIncrement * (row + 1);  // y position
+            Bubble bubble = bubbles.get(i);
+            double radius = bubble.getRadius();
+
+            // Ensure initial placement accounts for radius and avoids border
+            startPoint[2 * i] = Math.max(radius, Math.min(chart.getWidth() - radius, xIncrement * (col + 1)));
+            startPoint[2 * i + 1] = Math.max(radius, Math.min(chart.getHeight() - radius, yIncrement * (row + 1)));
         }
+
         return startPoint;
     }
+
+    private double getMaxBubbleRadius() {
+        return bubbles.stream().mapToDouble(Bubble::getRadius).max().orElse(0);
+    }
+
 
 }
