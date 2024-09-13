@@ -1,4 +1,3 @@
-```markdown
 # BubbleChart
 
 ![BubbleChart Logo](path/to/logo.png)
