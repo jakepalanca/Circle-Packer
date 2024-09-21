@@ -220,34 +220,6 @@ public class CirclePackingExample {
 
 This example demonstrates how to programmatically manage packable objects within a `Chart`, perform optimizations, and access detailed information about the packing results using object identifiers. By implementing the `Packable` interface, any Java object can be integrated into the packing system with custom properties, making **Circle Packer** highly adaptable to various use cases.
 
-## Edge Cases
-
-Circle Packer includes several predefined edge cases to test the robustness of the packing algorithm:
-
-1. **Single Object:**
-    - Test with only one object to ensure basic functionality.
-
-2. **Two Equal Objects:**
-    - Evaluate how the algorithm handles multiple objects of the same size.
-
-3. **Many Small Objects:**
-    - Observe the algorithm's performance with a large number of small entities.
-
-4. **Large and Small Objects:**
-    - Test with a mix of large and small objects to assess packing efficiency.
-
-5. **Identical Objects (50 Objects of Ratio 1.0):**
-    - Stress-test the algorithm with many identical-sized objects.
-
-6. **Random Properties (20 Objects with Random Ratios):**
-    - Examine how the algorithm manages objects of varying sizes and properties.
-
-To use an edge case:
-
-1. Navigate to the **Edge Cases** section on the right panel.
-2. Click on the desired edge case button.
-3. The application will load the predefined packables, optimize their placement, and display the results.
-
 ## Documentation
 
 Comprehensive documentation is available to help you understand and extend the Circle Packer application.
@@ -277,7 +249,7 @@ Contributions are welcome! If you'd like to improve Circle Packer, follow these 
 2. **Clone Your Fork:**
 
    ```bash
-   git clone https://github.com/yourusername/circle-packer.git
+   git clone https://github.com/jakepalanca/circle-packer.git
    cd circle-packer
    ```
 
@@ -310,12 +282,4 @@ Contributions are welcome! If you'd like to improve Circle Packer, follow these 
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
-
-## Contact
-
-For any questions, suggestions, or feedback, please reach out:
-
-- **Author:** Jake Palanca
-- **Email:** [jakepalanca@example.com](mailto:jakepalanca@example.com)
-- **GitHub:** [https://github.com/jakepalanca](https://github.com/jakepalanca)
+This project is licensed under the [GNU General Public License](LICENSE).
