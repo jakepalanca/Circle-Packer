@@ -1,280 +1,312 @@
-# BubbleChart
+# Circle Packer
 
-![BubbleChart Logo](path/to/logo.png)
+**Circle Packer** is a versatile Java-based application designed to optimize the placement of various packable objects within a rectangular area. While it includes a visual interface built with JavaFX for testing and visualization purposes, its primary goal is to provide a flexible system that can handle any Java object by making it packable through a standardized interface. This adaptability makes it suitable for diverse applications such as data visualization, layout design, and geometric optimizations. The results are managed through a generic class, ensuring flexibility and scalability.
 
 ## Table of Contents
 
-- [Introduction](#introduction)
 - [Features](#features)
 - [Demo](#demo)
 - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Building the Project](#building-the-project)
 - [Usage](#usage)
-  - [Running the Application](#running-the-application)
-  - [Integrating into Other Projects](#integrating-into-other-projects)
-- [Building and Testing](#building-and-testing)
-  - [Prerequisites](#prerequisites)
-  - [Building with Maven](#building-with-maven)
-  - [Running Tests](#running-tests)
-- [JavaFX Integration](#javafx-integration)
+    - [Running the Application](#running-the-application)
+    - [Application Interface](#application-interface)
+- [Use Case](#use-case)
+- [Edge Cases](#edge-cases)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
 
-## Introduction
-
-**BubbleChart** is a JavaFX-based application that visualizes data through interactive bubble charts. It employs a circle packing algorithm to optimize the placement and sizing of bubbles based on their relative `radiusRatio`, ensuring a clutter-free and visually appealing representation. The application is designed for both internal testing and real-world usage, allowing developers to integrate the packing functionality into other projects seamlessly.
-
-![BubbleChart Screenshot](path/to/screenshot.png)
-
 ## Features
 
-- **Dynamic Bubble Packing:** Optimizes the placement and sizing of bubbles to minimize overlaps based on `radiusRatio`.
-- **Interactive UI:** Add, remove, and manage bubbles with ease through an intuitive JavaFX interface.
-- **Customizable Chart Dimensions:** Specify the dimensions of the chart to suit various display requirements.
-- **Edge Case Handling:** Predefined edge cases for testing, including single bubble, multiple identical bubbles, and random ratios.
-- **UUID Integration:** Each bubble is assigned a unique identifier for precise management and removal.
-- **Comprehensive Testing:** Includes JUnit tests covering various scenarios to ensure reliability.
-- **Easy Integration:** Designed to be easily integrated into other Java projects as a packable module.
+- **Flexible Interface:** Designed to manage and optimize any Java object by implementing the `Packable` interface.
+- **Customizable Packables:** Add, remove, and customize objects with varying properties, allowing each packable to have its own unique characteristics.
+- **Optimization Algorithm:** Efficiently packs objects within the defined container, minimizing overlaps and ensuring optimal space usage.
+- **Predefined Edge Cases:** Test the algorithm with various predefined scenarios, such as single object, multiple identical objects, many small objects, and random properties.
+- **Detailed Results:** View comprehensive details about the packing process, including computation time, number of iterations, overlap areas, and adjustments made.
+- **Scalable Canvas:** Visualize the packing results on a scalable canvas, providing a clear representation for testing and demonstration purposes.
+- **Generic Results Management:** Utilize a generic class to handle results, making it easy to work with different types of packable objects.
 
 ## Demo
 
-![BubbleChart Demo](path/to/demo.gif)
-
-*Replace the above placeholders with actual images or GIFs showcasing the application's functionality.*
+![Circle Packer Demo](screenshots/screenshot.png)
 
 ## Installation
 
 ### Prerequisites
 
-- **Java Development Kit (JDK) 11 or higher:** Ensure that Java is installed on your system. You can download it from [AdoptOpenJDK](https://adoptopenjdk.net/) or [Oracle](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html).
-- **Apache Maven:** A build automation tool used for managing the project. Download it from [Maven Official Website](https://maven.apache.org/download.cgi).
+Before you begin, ensure you have met the following requirements:
 
-### Clone the Repository
+- **Java Development Kit (JDK):** Version 17 or higher is recommended. You can download it from [AdoptOpenJDK](https://adoptopenjdk.net/) or [Oracle](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html).
+- **Maven:** Used for building the project. Download and installation instructions are available at [Maven's Official Website](https://maven.apache.org/install.html).
+- **JavaFX SDK:** Required for JavaFX applications. Download it from [Gluon](https://gluonhq.com/products/javafx/).
 
-```bash
-git clone https://github.com/yourusername/BubbleChart.git
-cd BubbleChart
-```
+### Building the Project
 
-*Replace `yourusername` with your actual GitHub username.*
+1. **Clone the Repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/circle-packer.git
+   cd circle-packer
+   ```
+
+2. **Configure JavaFX:**
+
+   Ensure that the JavaFX SDK is correctly set up. You may need to set the `PATH_TO_FX` environment variable to point to your JavaFX SDK directory.
+
+   ```bash
+   export PATH_TO_FX=/path/to/javafx-sdk-17/lib
+   ```
+
+3. **Build with Maven:**
+
+   The project uses Maven for dependency management and building.
+
+   ```bash
+   mvn clean install
+   ```
+
+   This command will compile the project and generate the necessary artifacts.
 
 ## Usage
 
 ### Running the Application
 
-1. **Navigate to the Project Directory:**
+After successfully building the project, you can run the application using Maven or by executing the generated JAR file.
+
+#### Using Maven:
+
+```bash
+mvn javafx:run
+```
+
+#### Using the JAR File:
+
+1. **Navigate to the Target Directory:**
 
    ```bash
-   cd BubbleChart
+   cd target
    ```
 
-2. **Build the Project:**
-
-   Use Maven to compile the project and resolve dependencies.
+2. **Run the JAR:**
 
    ```bash
-   mvn clean install
+   java --module-path $PATH_TO_FX --add-modules javafx.controls,javafx.fxml -jar circle-packer.jar
    ```
 
-3. **Run the Application:**
+   *Ensure that `$PATH_TO_FX` points to the JavaFX SDK `lib` directory.*
 
-   Execute the JavaFX application using Maven.
+### Application Interface
 
-   ```bash
-   mvn javafx:run
-   ```
+Upon launching the application, you'll encounter the following interface components:
 
-   *Alternatively, you can run the application from your IDE by running the `CirclePackingTesterApp` class.*
+1. **Dimension Input Window:**
+    - **Width & Height Fields:** Input the dimensions of the container within which objects will be packed.
+    - **Continue Button:** Proceed to the main application interface after entering valid dimensions.
 
-### Integrating into Other Projects
+2. **Main Application Window:**
+    - **Left Panel (Control Box):**
+        - **Add Packable:**
+            - **Property Fields:** Input properties for a new packable object.
+            - **Add Button:** Add the packable to the list.
+        - **Packables ListView:** Displays all added packable objects with options to delete individual items.
+        - **Optimize & Draw Button:** Run the packing algorithm and visualize the results.
+        - **Reset Chart Button:** Clear all packables and reset the application.
 
-**BubbleChart** is designed to be easily integrated into other Java projects. Follow the steps below to incorporate its packing functionality.
+    - **Center Panel (Canvas):**
+        - **Canvas Area:** Visual representation of the container and packed objects.
 
-1. **Add as a Dependency:**
+    - **Right Panel:**
+        - **Edge Cases:**
+            - **Predefined Scenarios:** Buttons to load various edge cases for testing the packing algorithm.
+        - **Details:**
+            - **Container Dimensions:** Displays the size of the container.
+            - **Computation Time:** Time taken to perform the packing.
+            - **Iterations:** Number of iterations the algorithm performed.
+            - **Overlaps Exist:** Indicates if any overlaps remain after optimization.
+            - **Total Overlap Area:** Total area of overlapping regions.
+            - **Adjustments Made:** Number of adjustments the algorithm made during packing.
 
-   If you've published **BubbleChart** to a Maven repository, add the dependency to your project's `pom.xml`:
+## Use Case
 
-   ```xml
-   <dependency>
-       <groupId>com.yourcompany</groupId>
-       <artifactId>BubbleChart</artifactId>
-       <version>1.0.0</version>
-   </dependency>
-   ```
+The **Circle Packer** application is designed to be flexible and adaptable, allowing developers and users to manage packable objects efficiently. Below is a typical use case demonstrating how to instantiate a `Chart`, add or remove `Packable` objects, optimize the chart, and retrieve information using object IDs. This example is based on the tester application, showcasing the practical application of the interface.
 
-   *Replace `com.yourcompany` and other fields with your actual group ID, artifact ID, and version.*
+### Example: Managing Packable Objects
 
-2. **Using the `Chart` Class:**
+```java
+import jakepalanca.circlepacker.Chart;
+import jakepalanca.circlepacker.Packable;
+import jakepalanca.circlepacker.PackingResult;
+import jakepalanca.circlepacker.CirclePackingTesterApp.Bubble;
+import javafx.scene.paint.Color;
 
-   ```java
-   import jakepalanca.bubblechart.Chart;
-   import jakepalanca.bubblechart.Packable;
-   import jakepalanca.bubblechart.PackingResult;
+import java.util.UUID;
 
-   import java.util.UUID;
+public class CirclePackingExample {
 
-   public class YourClass {
-       public static void main(String[] args) {
-           // Initialize the chart with desired dimensions
-           Chart chart = new Chart(800, 600);
+    public static void main(String[] args) {
+        // Instantiate a Chart with specific dimensions
+        double chartWidth = 800;
+        double chartHeight = 600;
+        Chart chart = new Chart(chartWidth, chartHeight);
 
-           // Create and add packable objects
-           Packable bubble1 = new YourPackableImplementation(1.0);
-           Packable bubble2 = new YourPackableImplementation(0.5);
-           // Add more bubbles as needed
+        // Create Packable objects (Bubbles)
+        Packable bubble1 = new Bubble(1.0, Color.RED);
+        Packable bubble2 = new Bubble(0.5, Color.BLUE);
+        Packable bubble3 = new Bubble(0.3, Color.GREEN);
 
-           chart.addPackable(bubble1);
-           chart.addPackable(bubble2);
-           // Add more bubbles as needed
+        // Add Packable objects to the Chart
+        chart.addPackable(bubble1);
+        chart.addPackable(bubble2);
+        chart.addPackable(bubble3);
 
-           // Optimize the chart
-           PackingResult<Packable> result = chart.optimize(1000);
+        // Remove a Packable object using its UUID
+        UUID idToRemove = bubble2.getId();
+        chart.removePackable(idToRemove);
 
-           // Retrieve optimized packables
-           for (Packable p : result.getPackables()) {
-               System.out.println("Bubble ID: " + p.getId());
-               System.out.println("Position: (" + p.getX() + ", " + p.getY() + ")");
-               System.out.println("Radius: " + p.getRadius());
-           }
-       }
-   }
-   ```
+        // Optimize the Chart with a maximum of 1000 iterations
+        int maxIterations = 1000;
+        PackingResult<Packable> result = chart.optimize(maxIterations);
 
-   *Ensure that `YourPackableImplementation` implements the `Packable` interface.*
+        // Retrieve information using the Packable's UUID
+        UUID idToRetrieve = bubble1.getId();
+        Packable retrievedBubble = chart.getPackables().stream()
+                .filter(b -> b.getId().equals(idToRetrieve))
+                .findFirst()
+                .orElse(null);
 
-## Building and Testing
+        if (retrievedBubble != null) {
+            System.out.println("Retrieved Bubble:");
+            System.out.println("Radius Ratio: " + retrievedBubble.getRadiusRatio());
+            System.out.println("Position: (" + retrievedBubble.getX() + ", " + retrievedBubble.getY() + ")");
+            System.out.println("Radius: " + retrievedBubble.getRadius());
+        }
 
-### Prerequisites
+        // Display Packing Results
+        System.out.println("Packing Optimization Results:");
+        System.out.println("Computation Time: " + result.getComputationTime() + " ms");
+        System.out.println("Iterations: " + result.getIterations());
+        System.out.println("Overlaps Exist: " + result.isOverlapsExist());
+        System.out.println("Total Overlap Area: " + result.getTotalOverlapArea());
+        System.out.println("Adjustments Made: " + result.getAdjustmentsMade());
+    }
+}
+```
 
-- **Java Development Kit (JDK) 11 or higher**
-- **Apache Maven**
+### Explanation
 
-### Building with Maven
+1. **Instantiate a Chart:**
+    - Create a `Chart` object with specified width and height dimensions. The `Chart` manages the collection of `Packable` objects and handles the optimization process.
 
-1. **Clean and Build the Project:**
+2. **Create Packable Objects:**
+    - Instantiate `Bubble` objects (which implement the `Packable` interface) with different radius ratios and colors. Each `Bubble` represents a packable entity with customizable properties.
 
-   ```bash
-   mvn clean install
-   ```
+3. **Add Packable Objects:**
+    - Use the `addPackable` method of the `Chart` class to add `Bubble` objects to the chart. This method assigns a unique `UUID` to each packable, facilitating easy management and retrieval.
 
-   This command will compile the project, run tests, and package the application.
+4. **Remove a Packable Object:**
+    - Remove a specific `Packable` object from the chart using its unique `UUID`. This demonstrates the ability to dynamically manage the collection of packables.
 
-2. **Package the Application:**
+5. **Optimize the Chart:**
+    - Call the `optimize` method on the `Chart` object, specifying the maximum number of iterations for the packing algorithm. This method processes the packables to arrange them within the container optimally. The `PackingResult` provides detailed information about the optimization process.
 
-   To create a JAR file:
+6. **Retrieve Information Using ID:**
+    - Access specific `Packable` objects in the chart by filtering through the collection using their `UUID`. Retrieve and display their properties such as radius ratio, position, and radius. This showcases how to interact with individual packables post-optimization.
 
-   ```bash
-   mvn package
-   ```
+7. **Display Packing Results:**
+    - Output the results of the packing optimization, including computation time, number of iterations, whether overlaps still exist, total overlap area, and adjustments made during the process. This provides insights into the efficiency and effectiveness of the packing algorithm.
 
-   The JAR file will be located in the `target` directory.
+This example demonstrates how to programmatically manage packable objects within a `Chart`, perform optimizations, and access detailed information about the packing results using object identifiers. By implementing the `Packable` interface, any Java object can be integrated into the packing system with custom properties, making **Circle Packer** highly adaptable to various use cases.
 
-### Running Tests
+## Edge Cases
 
-**BubbleChart** includes comprehensive JUnit tests to ensure the reliability of the packing algorithm.
+Circle Packer includes several predefined edge cases to test the robustness of the packing algorithm:
 
-1. **Execute Tests:**
+1. **Single Object:**
+    - Test with only one object to ensure basic functionality.
 
-   ```bash
-   mvn test
-   ```
+2. **Two Equal Objects:**
+    - Evaluate how the algorithm handles multiple objects of the same size.
 
-2. **Viewing Test Reports:**
+3. **Many Small Objects:**
+    - Observe the algorithm's performance with a large number of small entities.
 
-   After running tests, Maven generates reports located in the `target/surefire-reports` directory. You can review these reports for detailed information on test executions.
+4. **Large and Small Objects:**
+    - Test with a mix of large and small objects to assess packing efficiency.
 
-   ![Test Report](path/to/test-report.png)
+5. **Identical Objects (50 Objects of Ratio 1.0):**
+    - Stress-test the algorithm with many identical-sized objects.
 
-## JavaFX Integration
+6. **Random Properties (20 Objects with Random Ratios):**
+    - Examine how the algorithm manages objects of varying sizes and properties.
 
-**BubbleChart** leverages JavaFX for its graphical user interface. Integrating JavaFX with Maven requires specific configurations.
+To use an edge case:
 
-### Setting Up JavaFX with Maven
+1. Navigate to the **Edge Cases** section on the right panel.
+2. Click on the desired edge case button.
+3. The application will load the predefined packables, optimize their placement, and display the results.
 
-1. **Add JavaFX Dependencies:**
+## Documentation
 
-   Ensure that your `pom.xml` includes the necessary JavaFX dependencies. Here's an example configuration:
+Comprehensive documentation is available to help you understand and extend the Circle Packer application.
 
-   ```xml
-   <dependencies>
-       <!-- JavaFX Dependencies -->
-       <dependency>
-           <groupId>org.openjfx</groupId>
-           <artifactId>javafx-controls</artifactId>
-           <version>20.0.1</version>
-       </dependency>
-       <dependency>
-           <groupId>org.openjfx</groupId>
-           <artifactId>javafx-fxml</artifactId>
-           <version>20.0.1</version>
-       </dependency>
-       <!-- Add other JavaFX modules as needed -->
-   </dependencies>
+### Javadoc
 
-   <build>
-       <plugins>
-           <plugin>
-               <groupId>org.openjfx</groupId>
-               <artifactId>javafx-maven-plugin</artifactId>
-               <version>0.0.8</version>
-               <configuration>
-                   <mainClass>jakepalanca.bubblechart.CirclePackingTesterApp</mainClass>
-               </configuration>
-           </plugin>
-       </plugins>
-   </build>
-   ```
+Detailed Javadoc comments are provided for all classes and methods. You can generate and view the Javadoc using Maven:
 
-   *Replace the version numbers with the latest stable releases.*
+```bash
+mvn javadoc:javadoc
+```
 
-2. **Running JavaFX Application with Maven:**
+After running the command, open the generated `index.html` located in `target/site/apidocs` to explore the documentation.
 
-   Use the JavaFX Maven plugin to run the application:
+### Source Code
 
-   ```bash
-   mvn javafx:run
-   ```
-
-   This command will launch the JavaFX application defined by the `mainClass` in the plugin configuration.
-
-### Configuring JavaFX in Your IDE
-
-Most modern IDEs like IntelliJ IDEA and Eclipse can automatically detect and configure JavaFX projects. Ensure that your IDE is set up to recognize the Maven project and its dependencies.
+The source code is well-documented with inline comments explaining the functionality of classes, methods, and significant code blocks. Refer to the [Source Code](src/main/java/jakepalanca/circlepacker) directory for more details.
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute to **BubbleChart**, please follow the guidelines below.
+Contributions are welcome! If you'd like to improve Circle Packer, follow these steps:
 
-1. **Fork the Repository**
+1. **Fork the Repository:**
 
-2. **Create a Feature Branch**
+   Click the "Fork" button at the top-right corner of this page to create a copy of the repository under your GitHub account.
 
-   ```bash
-   git checkout -b feature/YourFeature
-   ```
-
-3. **Commit Your Changes**
+2. **Clone Your Fork:**
 
    ```bash
-   git commit -m "Add your message here"
+   git clone https://github.com/yourusername/circle-packer.git
+   cd circle-packer
    ```
 
-4. **Push to the Branch**
+3. **Create a New Branch:**
 
    ```bash
-   git push origin feature/YourFeature
+   git checkout -b feature/YourFeatureName
    ```
 
-5. **Open a Pull Request**
+4. **Make Your Changes:**
 
-   Submit a pull request detailing your changes and the reasons behind them.
+   Implement your feature or bug fix with clear and concise code. Ensure that your code follows the project's coding standards.
 
-### Guidelines
+5. **Commit Your Changes:**
 
-- Follow the existing code style and conventions.
-- Ensure that all tests pass before submitting.
-- Provide clear and concise commit messages.
-- Document any new features or changes in the README.
+   ```bash
+   git add .
+   git commit -m "Add feature: YourFeatureName"
+   ```
+
+6. **Push to Your Fork:**
+
+   ```bash
+   git push origin feature/YourFeatureName
+   ```
+
+7. **Create a Pull Request:**
+
+   Navigate to the original repository and create a pull request from your fork's branch. Provide a clear description of your changes and the reasons behind them.
 
 ## License
 
@@ -282,50 +314,8 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For any questions or feedback, please contact:
+For any questions, suggestions, or feedback, please reach out:
 
-- **Jake Palanca**
+- **Author:** Jake Palanca
 - **Email:** [jakepalanca@example.com](mailto:jakepalanca@example.com)
-- **GitHub:** [@yourusername](https://github.com/yourusername)
-
----
-
-*This README was generated to help users understand, build, and contribute to the BubbleChart project. Replace all placeholder paths (e.g., `path/to/image.png`) and URLs with actual links relevant to your project.*
-
-```
-
-
-**Notes:**
-
-1. **Placeholders for Images:**
-   - Replace `path/to/logo.png`, `path/to/screenshot.png`, `path/to/demo.gif`, and `path/to/test-report.png` with the actual paths to your images in the repository.
-   - You can add images to a directory like `docs/images/` and reference them accordingly.
-
-2. **Project Information:**
-   - Ensure that the group ID, artifact ID, and version in the Maven sections match your project's configuration.
-   - Update the GitHub repository URL, contact information, and any other placeholders with your actual details.
-
-3. **JavaFX Configuration:**
-   - Adjust the JavaFX version numbers in the `pom.xml` examples to match the version you're using.
-   - Make sure the `mainClass` in the JavaFX Maven plugin points to your main application class.
-
-4. **License:**
-   - If you choose a different license, update the License section accordingly.
-   - Ensure you have a `LICENSE` file in your repository.
-
-5. **Contributing Guidelines:**
-   - Consider adding a `CONTRIBUTING.md` file for more detailed contribution guidelines if your project is open to external contributors.
-
-6. **Enhancements:**
-   - You may include sections like **FAQ**, **Troubleshooting**, or **Roadmap** based on your project's needs.
-
-7. **Testing Issues:**
-   - The user mentioned that JUnit tests are failing, specifically `testOverlappingAfterOptimization` and `testTotalOverlapArea`. Ensure that the fixes provided earlier have been correctly implemented in the `Packing.java` and related classes to resolve these test failures.
-
-8. **Repository Structure:**
-   - Ensure your repository follows a standard Maven project structure, e.g., `src/main/java`, `src/test/java`, etc., to facilitate building and testing.
-
-9. **Additional Documentation:**
-   - If your project grows in complexity, consider adding further documentation, such as API references or detailed usage examples.
-
-By following the above README structure and ensuring all placeholders are appropriately filled, your GitHub repository will provide clear guidance to users and contributors on how to use, build, test, and integrate the **BubbleChart** project.
+- **GitHub:** [https://github.com/jakepalanca](https://github.com/jakepalanca)

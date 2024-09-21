@@ -1,4 +1,4 @@
-package jakepalanca.bubblechart;
+package jakepalanca.circlepacker;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -18,22 +18,31 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Main application to test circle packing functionality using JavaFX.
- * This is meant to test the CirclePacking algorithm with a GUI.
+ * Main application to test the circle packing functionality using JavaFX.
+ * The app allows users to input dimensions for a rectangle, add bubbles (circles),
+ * and then optimize their packing using a packing algorithm.
+ * The user can also test predefined edge cases for circle packing scenarios.
  */
 public class CirclePackingTesterApp extends Application {
 
     /**
-     * Class to represent each bubble in the UI with radius ratio, color, and coordinates.
+     * Represents a bubble in the UI. Implements the Packable interface to provide
+     * necessary attributes for circle packing, such as radius ratio, radius, and coordinates.
      */
     public static class Bubble implements Packable {
-        private UUID id;
+        private final UUID id;
         private double radiusRatio;
         private double radius;
         private double x;
         private double y;
         private final Color color;
 
+        /**
+         * Constructs a new Bubble with the specified radius ratio and color.
+         *
+         * @param radiusRatio the ratio of the bubble's radius
+         * @param color       the color of the bubble
+         */
         public Bubble(double radiusRatio, Color color) {
             this.id = UUID.randomUUID();
             this.radiusRatio = radiusRatio;
@@ -85,6 +94,11 @@ public class CirclePackingTesterApp extends Application {
             this.y = y;
         }
 
+        /**
+         * Returns the color of the bubble.
+         *
+         * @return the color of the bubble
+         */
         public Color getColor() {
             return color;
         }
@@ -103,7 +117,7 @@ public class CirclePackingTesterApp extends Application {
     private Button optimizeButton;
     private Button resetButton;
 
-    // Details labels
+    // Details labels for displaying packing results
     private Label computationTimeLabel;
     private Label iterationsLabel;
     private Label overlapsExistLabel;
@@ -111,7 +125,7 @@ public class CirclePackingTesterApp extends Application {
     private Label adjustmentsMadeLabel;
     private Label chartDimensionsLabel;
 
-    // Chart instance
+    // Chart instance that holds the bubbles
     private Chart chart;
 
     // Canvas dimensions
@@ -121,15 +135,25 @@ public class CirclePackingTesterApp extends Application {
     // Maximum number of iterations for the packing algorithm
     private final int maxIterations = 1000;
 
+    /**
+     * The main entry point for the application.
+     * This method is called by the JavaFX runtime to launch the application.
+     *
+     * @param primaryStage the primary window for this application
+     */
     @Override
     public void start(Stage primaryStage) {
         // Show the initial dimension input window
         showDimensionInputWindow(primaryStage);
     }
 
-    // Display the initial window to input dimensions
+    /**
+     * Displays a window that prompts the user to input the width and height
+     * for the rectangle used in the circle packing algorithm.
+     *
+     * @param primaryStage the main stage of the application
+     */
     private void showDimensionInputWindow(Stage primaryStage) {
-        // Create TextFields for width and height
         TextField widthInput = new TextField();
         widthInput.setPromptText("Width (min 100)");
 
@@ -142,9 +166,7 @@ public class CirclePackingTesterApp extends Application {
                 double inputWidth = Double.parseDouble(widthInput.getText().trim());
                 double inputHeight = Double.parseDouble(heightInput.getText().trim());
                 if (inputWidth >= 100 && inputHeight >= 100) {
-                    // Initialize the chart
                     chart = new Chart(inputWidth, inputHeight);
-                    // Proceed to main application
                     showMainApplication(primaryStage);
                 } else {
                     showAlert("Width and height must be at least 100.");
@@ -157,12 +179,8 @@ public class CirclePackingTesterApp extends Application {
         VBox inputBox = new VBox(10);
         inputBox.setAlignment(Pos.CENTER);
         inputBox.setPadding(new Insets(20));
-        inputBox.getChildren().addAll(
-                new Label("Enter the dimensions of the rectangle:"),
-                widthInput,
-                heightInput,
-                continueButton
-        );
+        inputBox.getChildren().addAll(new Label("Enter the dimensions of the rectangle:"),
+                widthInput, heightInput, continueButton);
 
         Scene inputScene = new Scene(inputBox);
         primaryStage.setTitle("Set Rectangle Dimensions");
@@ -171,34 +189,31 @@ public class CirclePackingTesterApp extends Application {
         primaryStage.show();
     }
 
-    // Set up the main application window
+    /**
+     * Sets up the main application window, including the canvas for visualizing
+     * the packing result, input fields, and control buttons.
+     *
+     * @param primaryStage the main stage of the application
+     */
     private void showMainApplication(Stage primaryStage) {
-        // Initialize UI components
         initializeComponents();
 
-        // Set up the layout
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10));
 
-        // Left: Radius ratio input and list
         VBox controlBox = createControlBox();
-
-        // Center: Canvas for drawing
         canvas = new Canvas(canvasWidth, canvasHeight);
         canvas.setStyle("-fx-background-color: lightgray;");
         StackPane canvasPane = new StackPane(canvas);
-        canvasPane.setPadding(new Insets(25)); // Add padding around canvas
+        canvasPane.setPadding(new Insets(25));
         canvasPane.setStyle("-fx-border-color: black;");
 
-        // Right: Edge cases buttons and details
         VBox rightBox = createRightBox();
 
-        // Add components to the root layout
         root.setLeft(controlBox);
         root.setCenter(canvasPane);
         root.setRight(rightBox);
 
-        // Create and set the scene
         Scene scene = new Scene(root);
         primaryStage.setTitle("Circle Packing Tester");
         primaryStage.setScene(scene);
@@ -206,14 +221,53 @@ public class CirclePackingTesterApp extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        // Clear the canvas
         clearCanvas();
     }
 
-    // Create the right box with edge cases and details
+    /**
+     * Creates a control box containing input fields for radius ratios,
+     * buttons for adding bubbles, optimizing, and resetting the chart.
+     *
+     * @return the control box as a VBox layout
+     */
+    private VBox createControlBox() {
+        VBox controlBox = new VBox(10);
+        controlBox.setPadding(new Insets(0, 10, 0, 0));
+        controlBox.setAlignment(Pos.TOP_LEFT);
+
+        Label radiusListLabel = new Label("Radius Ratios:");
+        radiusListView = new ListView<>();
+        radiusListView.setPrefWidth(200);
+        radiusListView.setPlaceholder(new Label("No bubbles added"));
+        radiusListView.setCellFactory(param -> new BubbleCell());
+
+        radiusRatioField = new TextField();
+        radiusRatioField.setPromptText("Enter radius ratio (e.g., 0.5)");
+
+        addButton = new Button("Add Bubble");
+        addButton.setOnAction(e -> addBubble());
+
+        optimizeButton = new Button("Optimize & Draw");
+        optimizeButton.setOnAction(e -> optimizeAndDraw());
+
+        resetButton = new Button("Reset Chart");
+        resetButton.setOnAction(e -> resetChart());
+
+        controlBox.getChildren().addAll(new Label("Add Bubble:"),
+                radiusRatioField, addButton, radiusListLabel, radiusListView, optimizeButton, resetButton);
+
+        return controlBox;
+    }
+
+    /**
+     * Creates the right box containing edge case buttons and details about the
+     * packing result (such as computation time, iterations, and overlap).
+     *
+     * @return the right box as a VBox layout
+     */
     private VBox createRightBox() {
         VBox rightBox = new VBox(20);
-        rightBox.setPadding(new Insets(0, 10, 0, 10)); // Added padding
+        rightBox.setPadding(new Insets(0, 10, 0, 10));
         rightBox.setAlignment(Pos.TOP_LEFT);
 
         Label edgeCasesLabel = new Label("Edge Cases:");
@@ -227,12 +281,16 @@ public class CirclePackingTesterApp extends Application {
         return rightBox;
     }
 
-    // Create the details grid
+    /**
+     * Creates a grid pane to display details about the packing result.
+     *
+     * @return the grid pane containing the details
+     */
     private GridPane createDetailsGrid() {
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(5);
-        grid.setPadding(new Insets(10, 10, 10, 0)); // Added padding
+        grid.setPadding(new Insets(10, 10, 10, 0));
 
         int row = 0;
 
@@ -263,44 +321,12 @@ public class CirclePackingTesterApp extends Application {
         return grid;
     }
 
-    // Create the control box on the left side
-    private VBox createControlBox() {
-        VBox controlBox = new VBox(10);
-        controlBox.setPadding(new Insets(0, 10, 0, 0));
-        controlBox.setAlignment(Pos.TOP_LEFT);
-
-        Label radiusListLabel = new Label("Radius Ratios:");
-        radiusListView = new ListView<>();
-        radiusListView.setPrefWidth(200);
-        radiusListView.setPlaceholder(new Label("No bubbles added"));
-        radiusListView.setCellFactory(param -> new BubbleCell());
-
-        radiusRatioField = new TextField();
-        radiusRatioField.setPromptText("Enter radius ratio (e.g., 0.5)");
-
-        addButton = new Button("Add Bubble");
-        addButton.setOnAction(e -> addBubble());
-
-        optimizeButton = new Button("Optimize & Draw");
-        optimizeButton.setOnAction(e -> optimizeAndDraw());
-
-        resetButton = new Button("Reset Chart");
-        resetButton.setOnAction(e -> resetChart());
-
-        controlBox.getChildren().addAll(
-                new Label("Add Bubble:"),
-                radiusRatioField,
-                addButton,
-                radiusListLabel,
-                radiusListView,
-                optimizeButton,
-                resetButton
-        );
-
-        return controlBox;
-    }
-
-    // Create the edge cases pane with buttons
+    /**
+     * Creates a scroll pane containing buttons for different edge cases
+     * of circle packing, such as single bubble, many small bubbles, and random ratios.
+     *
+     * @return the scroll pane containing edge case buttons
+     */
     private ScrollPane createEdgeCasesPane() {
         VBox edgeCasesBox = new VBox(10);
         edgeCasesBox.setPadding(new Insets(5));
@@ -323,7 +349,12 @@ public class CirclePackingTesterApp extends Application {
         return scrollPane;
     }
 
-    // Define edge cases
+    /**
+     * Defines a list of predefined edge cases for circle packing, such as
+     * single bubble, two equal bubbles, many small bubbles, etc.
+     *
+     * @return a list of edge cases
+     */
     private List<EdgeCase> createEdgeCases() {
         List<EdgeCase> edgeCases = new ArrayList<>();
 
@@ -367,35 +398,36 @@ public class CirclePackingTesterApp extends Application {
         }
         edgeCases.add(new EdgeCase("Random Ratios", randomBubbles));
 
-        // Add more edge cases as needed
-
         return edgeCases;
     }
 
-    // Load an edge case
+    /**
+     * Loads a predefined edge case and automatically optimizes and draws the bubbles.
+     *
+     * @param edgeCase the edge case to load
+     */
     private void loadEdgeCase(EdgeCase edgeCase) {
-        // Clear previous bubbles
         chart.getPackables().clear();
         radiusListView.getItems().clear();
 
-        // Add edge case bubbles to the list
         for (Bubble bubble : edgeCase.getBubbles()) {
             chart.addPackable(bubble);
         }
         radiusListView.getItems().addAll(edgeCase.getBubbles());
 
-        // Automatically optimize and draw the bubbles
         optimizeAndDraw();
     }
 
-    // Optimize and draw the circles
+    /**
+     * Optimizes the placement of bubbles in the chart and draws them on the canvas.
+     * Displays the result of the packing, such as computation time and overlaps.
+     */
     private void optimizeAndDraw() {
         if (chart.getPackables().isEmpty()) {
             showAlert("No bubbles to optimize. Please add bubbles or select an edge case.");
             return;
         }
 
-        // Perform the circle packing
         PackingResult<Packable> result = null;
         try {
             result = chart.optimize(maxIterations);
@@ -404,15 +436,18 @@ public class CirclePackingTesterApp extends Application {
             return;
         }
 
-        // Draw the packed circles
         clearCanvas();
         drawPackedCircles(result.getPackables());
 
-        // Update details
         updateDetails(result);
     }
 
-    // Update the details interface
+    /**
+     * Updates the details section with information from the packing result, such as
+     * computation time, iterations, and total overlap area.
+     *
+     * @param result the result of the packing operation
+     */
     private void updateDetails(PackingResult<Packable> result) {
         chartDimensionsLabel.setText((int) chart.getWidth() + " x " + (int) chart.getHeight());
         computationTimeLabel.setText(result.getComputationTime() + " ms");
@@ -423,12 +458,14 @@ public class CirclePackingTesterApp extends Application {
         adjustmentsMadeLabel.setText(String.valueOf(result.getAdjustmentsMade()));
     }
 
-    // Add a bubble to the list
+    /**
+     * Adds a new bubble with the specified radius ratio and a generated color to the chart.
+     * If the input is invalid, an error alert is shown.
+     */
     private void addBubble() {
         try {
             double ratio = Double.parseDouble(radiusRatioField.getText().trim());
             if (ratio > 0) {
-                // Generate a color
                 Color color = generateColor(radiusListView.getItems().size());
                 Bubble bubble = new Bubble(ratio, color);
                 chart.addPackable(bubble);
@@ -442,24 +479,26 @@ public class CirclePackingTesterApp extends Application {
         }
     }
 
-    // Reset the chart and clear all data
+    /**
+     * Resets the chart, clears all bubbles and the canvas, and returns to the initial dimension input window.
+     */
     private void resetChart() {
         chart.getPackables().clear();
         radiusListView.getItems().clear();
         clearCanvas();
         clearDetails();
 
-        // Go back to the dimension input window
         Stage stage = (Stage) canvas.getScene().getWindow();
         showDimensionInputWindow(stage);
     }
 
-    // Clear the canvas
+    /**
+     * Clears the canvas by erasing all drawn bubbles and draws the bounding rectangle of the chart.
+     */
     private void clearCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvasWidth, canvasHeight);
 
-        // Calculate scale and offsets
         double scaleX = (canvasWidth - 50) / chart.getWidth();
         double scaleY = (canvasHeight - 50) / chart.getHeight();
         double scale = Math.min(scaleX, scaleY);
@@ -470,12 +509,13 @@ public class CirclePackingTesterApp extends Application {
         double offsetX = (canvasWidth - scaledWidth) / 2;
         double offsetY = (canvasHeight - scaledHeight) / 2;
 
-        // Draw the rectangle (representing the bounding box)
         gc.setStroke(Color.BLACK);
         gc.strokeRect(offsetX, offsetY, scaledWidth, scaledHeight);
     }
 
-    // Clear details
+    /**
+     * Clears the details section, resetting the displayed information about the packing result.
+     */
     private void clearDetails() {
         chartDimensionsLabel.setText("");
         computationTimeLabel.setText("");
@@ -485,7 +525,11 @@ public class CirclePackingTesterApp extends Application {
         adjustmentsMadeLabel.setText("");
     }
 
-    // Draw the packed circles on the canvas
+    /**
+     * Draws the packed circles on the canvas, scaling their positions and radii according to the canvas dimensions.
+     *
+     * @param packables the collection of packed bubbles to be drawn
+     */
     private void drawPackedCircles(Collection<Packable> packables) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -503,74 +547,109 @@ public class CirclePackingTesterApp extends Application {
             Bubble bubble = (Bubble) p;
             Color color = bubble.getColor();
 
-            // Scale and offset circle positions and radius
             double scaledX = bubble.getX() * scale + offsetX;
             double scaledY = bubble.getY() * scale + offsetY;
             double scaledRadius = bubble.getRadius() * scale;
 
             gc.setFill(color);
-            gc.fillOval(scaledX - scaledRadius,
-                    scaledY - scaledRadius,
-                    scaledRadius * 2, scaledRadius * 2);
+            gc.fillOval(scaledX - scaledRadius, scaledY - scaledRadius, scaledRadius * 2, scaledRadius * 2);
 
-            gc.setStroke(Color.BLACK); // Draw circle outline
-            gc.strokeOval(scaledX - scaledRadius,
-                    scaledY - scaledRadius,
-                    scaledRadius * 2, scaledRadius * 2);
+            gc.setStroke(Color.BLACK);
+            gc.strokeOval(scaledX - scaledRadius, scaledY - scaledRadius, scaledRadius * 2, scaledRadius * 2);
         }
     }
 
-    // Generate differentiable colors
+    /**
+     * Generates a color based on the index to differentiate the bubbles.
+     * Uses the HSB color model with varying hues.
+     *
+     * @param index the index of the bubble
+     * @return a unique color for the bubble
+     */
     private Color generateColor(int index) {
-        // Use HSB color model, vary hue
         double hue = (index * 40) % 360; // Change hue every time
         double saturation = 0.7;
         double brightness = 0.6;
         return Color.hsb(hue, saturation, brightness);
     }
 
-    // Show an alert dialog with a message
+    /**
+     * Shows an alert dialog with the specified message.
+     *
+     * @param message the message to be displayed in the alert
+     */
     private void showAlert(String message) {
-        Alert alert = new Alert(AlertType.ERROR,
-                message, ButtonType.OK);
+        Alert alert = new Alert(AlertType.ERROR, message, ButtonType.OK);
         alert.showAndWait();
     }
 
-    // Initialize UI components
+    /**
+     * Initializes UI components. Can be used to set up additional event handlers or properties.
+     */
     private void initializeComponents() {
         // Implement if needed
     }
 
-    // Main method to launch the application
+    /**
+     * The main method to launch the application. Called by the JavaFX runtime.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
-    // EdgeCase class to hold predefined bubble lists
+    /**
+     * Represents an edge case for circle packing. An edge case includes a name
+     * and a list of bubbles with predefined ratios and colors.
+     */
     private static class EdgeCase {
         private final String name;
         private final List<Bubble> bubbles;
 
+        /**
+         * Constructs an edge case with the specified name and list of bubbles.
+         *
+         * @param name    the name of the edge case
+         * @param bubbles the list of bubbles for this edge case
+         */
         public EdgeCase(String name, List<Bubble> bubbles) {
             this.name = name;
             this.bubbles = bubbles;
         }
 
+        /**
+         * Returns the name of the edge case.
+         *
+         * @return the name of the edge case
+         */
         public String getName() {
             return name;
         }
 
+        /**
+         * Returns the list of bubbles for this edge case.
+         *
+         * @return the list of bubbles
+         */
         public List<Bubble> getBubbles() {
             return bubbles;
         }
     }
 
-    // Custom ListCell for the ListView to include a delete button and color matching
+    /**
+     * Custom ListCell for displaying a bubble in the ListView. Each ListCell contains
+     * the bubble's radius ratio and a delete button to remove it from the chart.
+     */
     private class BubbleCell extends ListCell<Bubble> {
         HBox hbox = new HBox(5);
         Button deleteButton = new Button("Delete");
         Label label = new Label();
 
+        /**
+         * Constructs a new BubbleCell. The delete button allows the user to remove
+         * a bubble from the chart and the ListView.
+         */
         public BubbleCell() {
             super();
             hbox.setAlignment(Pos.CENTER_LEFT);

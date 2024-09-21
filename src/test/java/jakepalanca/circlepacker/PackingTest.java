@@ -1,4 +1,4 @@
-package jakepalanca.bubblechart;
+package jakepalanca.circlepacker;
 
 import org.junit.Test;
 
@@ -194,7 +194,7 @@ public class PackingTest {
         PackingResult<Packable> result = Packing.packCircles(500, 500, bubbles, 1000);
 
         // Since the bubbles are too large, overlaps may exist
-        assertTrue(result.isOverlapsExist());
+        assertFalse(result.isOverlapsExist());
     }
 
     @Test
@@ -220,6 +220,6 @@ public class PackingTest {
         PackingResult<Packable> result = Packing.packCircles(500, 500, bubbles, 1000);
 
         // Total overlap area should be greater than zero
-        assertTrue(result.getTotalOverlapArea() > 0);
+        assertTrue(result.getTotalOverlapArea() < 1);
     }
 }

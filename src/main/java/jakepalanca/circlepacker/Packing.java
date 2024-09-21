@@ -1,4 +1,4 @@
-package jakepalanca.bubblechart;
+package jakepalanca.circlepacker;
 
 import java.util.List;
 import java.util.Random;
@@ -8,6 +8,20 @@ import java.util.Random;
  */
 public class Packing {
 
+    /**
+     * Packs circles within a rectangle using the specified width, height, and maximum number of iterations
+     * for optimization. The method assigns an initial random position for each circle and adjusts
+     * their positions to minimize overlap while keeping them within bounds.
+     *
+     * @param width         the width of the rectangle
+     * @param height        the height of the rectangle
+     * @param circles       the list of circles (packable objects) to be packed
+     * @param maxIterations the maximum number of iterations allowed for the optimization
+     * @return a {@link PackingResult} object containing the result of the packing operation,
+     *         including details such as the number of iterations, total overlap area, and
+     *         whether overlaps still exist
+     * @throws IllegalArgumentException if the rectangle dimensions are not positive or any circle's radius ratio is non-positive
+     */
     public static PackingResult<Packable> packCircles(double width, double height, List<? extends Packable> circles, int maxIterations) {
         // Validate rectangle dimensions
         if (width <= 0 || height <= 0) {
@@ -70,6 +84,14 @@ public class Packing {
         return new PackingResult<>((List<Packable>) circles, computationTime, iterations, overlapsExist, totalOverlapArea, adjustmentsMade);
     }
 
+    /**
+     * Adjusts the positions of the circles to ensure they are within the boundaries of the rectangle.
+     * The circles are moved if necessary to prevent them from exceeding the rectangle's width and height.
+     *
+     * @param circles the list of circles to adjust
+     * @param width   the width of the rectangle
+     * @param height  the height of the rectangle
+     */
     private static void adjustPositionsToFit(List<? extends Packable> circles, double width, double height) {
         for (Packable circle : circles) {
             // Adjust positions to keep circles within bounds
@@ -84,6 +106,7 @@ public class Packing {
             circle.setY(y);
         }
     }
+
     /**
      * Optimizes circle positions and sizes to minimize overlaps.
      *

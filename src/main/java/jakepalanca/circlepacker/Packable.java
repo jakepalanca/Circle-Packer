@@ -1,4 +1,4 @@
-package jakepalanca.bubblechart;
+package jakepalanca.circlepacker;
 
 import java.util.UUID;
 
